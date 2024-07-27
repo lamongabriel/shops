@@ -11,7 +11,7 @@ export function AuthLayout() {
           Dashboard &copy; Shops {new Date().getFullYear()}
         </footer>
       </div>
-      <div className="flex flex-col items-center justify-center bg-background text-foreground">
+      <div className="relative flex flex-col items-center justify-center bg-background text-foreground">
         <Outlet />
       </div>
     </main>

@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -16,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input'
 
 const signInFormSchema = z.object({
-  email: z.string().email('Invalid E-mail'),
+  email: z.string().email(),
 })
 
 type signInForm = z.infer<typeof signInFormSchema>
@@ -34,9 +35,13 @@ export function SignInPage() {
 
   return (
     <>
-      <Helmet title="Login" />
+      <Helmet title="Sign In" />
 
       <div className="p-8">
+        <Button asChild variant="outline" className="absolute right-8 top-8">
+          <Link to="/sign-up">New Store</Link>
+        </Button>
+
         <div className="flex w-[320px] flex-col justify-center gap-6">
           <div className="flex flex-col gap-2 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">
@@ -50,7 +55,7 @@ export function SignInPage() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleSignIn)}
-              className="space-y-4"
+              className="space-y-2"
             >
               <FormField
                 control={form.control}
@@ -59,7 +64,7 @@ export function SignInPage() {
                   <FormItem>
                     <FormLabel>E-mail</FormLabel>
                     <FormControl>
-                      <Input placeholder="dan@shops.com" {...field} />
+                      <Input placeholder="dan@cookiestore.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
