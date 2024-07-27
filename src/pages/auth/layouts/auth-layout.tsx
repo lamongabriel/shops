@@ -1,9 +1,19 @@
 import { Outlet } from 'react-router-dom'
 
+import { ShopsLogo } from '@/assets/icons/logo'
+
 export function AuthLayout() {
   return (
-    <div>
-      <Outlet />
-    </div>
+    <main className="grid min-h-screen grid-cols-2">
+      <div className="flex h-full flex-col justify-between border-r border-foreground/5 bg-muted p-10 text-muted-foreground">
+        <ShopsLogo />
+        <footer className="text-sm">
+          Dashboard &copy; Shops {new Date().getFullYear()}
+        </footer>
+      </div>
+      <div className="flex flex-col items-center justify-center bg-background text-foreground">
+        <Outlet />
+      </div>
+    </main>
   )
 }
