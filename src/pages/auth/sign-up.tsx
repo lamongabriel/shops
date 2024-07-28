@@ -1,10 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { signUp } from '@/api/sign-up'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -26,14 +28,30 @@ const signUpFormSchema = z.object({
 type signUpForm = z.infer<typeof signUpFormSchema>
 
 export function SignUpPage() {
+  const navigate = useNavigate()
+
   const form = useForm<signUpForm>({
     resolver: zodResolver(signUpFormSchema),
   })
 
-  async function handleSignUp(values: signUpForm) {
-    console.log(values)
+  const { mutateAsync: registerRestaurant } = useMutation({
+    mutationFn: signUp,
+  })
 
-    toast.success('A login link has been sent to your e-mail.')
+  async function handleSignUp(values: signUpForm) {
+    await registerRestaurant({
+      restaurantName: values.restaurantName,
+      managerName: values.managerName,
+      email: values.email,
+      phone: values.phone,
+    })
+
+    toast.success('Restaurant succesfully created.', {
+      action: {
+        label: 'Login',
+        onClick: () => navigate(`/sign-in?email=${values.email}`),
+      },
+    })
   }
 
   return (

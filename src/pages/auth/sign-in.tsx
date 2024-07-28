@@ -1,10 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { signIn } from '@/api/sign-in'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -23,15 +25,24 @@ const signInFormSchema = z.object({
 type signInForm = z.infer<typeof signInFormSchema>
 
 export function SignInPage() {
+  const [searchParams] = useSearchParams()
+
   const form = useForm<signInForm>({
     resolver: zodResolver(signInFormSchema),
+    defaultValues: {
+      email: searchParams.get('email') ?? '',
+    },
   })
 
   async function handleSignIn(values: signInForm) {
-    console.log(values)
+    await authenticate({ email: values.email })
 
     toast.success('A login link has been sent to your e-mail.')
   }
+
+  const { mutateAsync: authenticate } = useMutation({
+    mutationFn: signIn,
+  })
 
   return (
     <>
