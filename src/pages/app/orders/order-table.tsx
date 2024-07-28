@@ -1,5 +1,7 @@
+import { formatDistanceToNow } from 'date-fns'
 import { ArrowRight, X } from 'lucide-react'
 
+import { GetOrdersResponse } from '@/api/get-orders'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -10,9 +12,14 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+import { OrderStatus } from './order-status'
 import { OrderTableDialog } from './order-table-details-dialog'
 
-export function OrderTable() {
+export function OrderTable({
+  orders,
+}: {
+  orders: GetOrdersResponse['orders']
+}) {
   return (
     <Table>
       <TableHeader>
@@ -28,37 +35,43 @@ export function OrderTable() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow>
-          <TableCell>
-            <OrderTableDialog />
-          </TableCell>
-          <TableCell className="font-mono text-xs font-medium">
-            OR-2341AA
-          </TableCell>
-          <TableCell className="text-muted-foreground">
-            Mon, 13 Aug 2024
-          </TableCell>
-          <TableCell>
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-slate-400"></span>
-              <span className="font-medium text-muted-foreground">Pending</span>
-            </div>
-          </TableCell>
-          <TableCell className="font-medium">Dan Schneider</TableCell>
-          <TableCell className="font-medium">U$ 34,45</TableCell>
-          <TableCell>
-            <Button variant="outline" size="xs">
-              <ArrowRight className="mr-2 size-3" />
-              Approve
-            </Button>
-          </TableCell>
-          <TableCell>
-            <Button variant="ghost" size="xs">
-              <X className="mr-2 size-3" />
-              Cancel
-            </Button>
-          </TableCell>
-        </TableRow>
+        {orders.map((order) => (
+          <TableRow key={order.orderId}>
+            <TableCell>
+              <OrderTableDialog />
+            </TableCell>
+            <TableCell className="font-mono text-xs font-medium">
+              {order.orderId}
+            </TableCell>
+            <TableCell className="text-muted-foreground">
+              {formatDistanceToNow(order.createdAt, {
+                addSuffix: true,
+              })}
+            </TableCell>
+            <TableCell>
+              <OrderStatus status={order.status} />
+            </TableCell>
+            <TableCell className="font-medium">{order.customerName}</TableCell>
+            <TableCell className="font-medium">
+              {order.total.toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD',
+              })}
+            </TableCell>
+            <TableCell>
+              <Button variant="outline" size="xs">
+                <ArrowRight className="mr-2 size-3" />
+                Approve
+              </Button>
+            </TableCell>
+            <TableCell>
+              <Button variant="ghost" size="xs">
+                <X className="mr-2 size-3" />
+                Cancel
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
       </TableBody>
     </Table>
   )
