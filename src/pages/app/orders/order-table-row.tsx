@@ -3,7 +3,10 @@ import { formatDistanceToNow } from 'date-fns'
 import { ArrowRight, X } from 'lucide-react'
 import { useState } from 'react'
 
+import { approveOrder } from '@/api/approve-order'
 import { cancelOrder } from '@/api/cancel-order'
+import { deliverOrder } from '@/api/deliver-order'
+import { dispatchOrder } from '@/api/dispatch-order'
 import { GetOrdersResponse } from '@/api/get-orders'
 import { Button } from '@/components/ui/button'
 import { TableCell, TableRow } from '@/components/ui/table'
@@ -19,27 +22,55 @@ interface OrderTableRowProps {
 export function OrderTableRow({ order }: OrderTableRowProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
 
-  const { mutateAsync: cancel } = useMutation({
+  function updateOrderStatusCache(
+    orderId: string,
+    status: typeof order.status,
+  ) {
+    const cached = queryClient.getQueriesData<GetOrdersResponse>({
+      queryKey: ['orders'],
+    })
+
+    cached.forEach(([cacheKey, cacheData]) => {
+      if (!cacheData) return
+
+      queryClient.setQueryData<GetOrdersResponse>(cacheKey, {
+        ...cacheData,
+        orders: cacheData.orders.map((o) => {
+          if (o.orderId === orderId) {
+            return { ...o, status }
+          }
+
+          return o
+        }),
+      })
+    })
+  }
+
+  const { mutateAsync: cancel, isPending: isCancelingPending } = useMutation({
     mutationFn: cancelOrder,
     onSuccess(_, orderId) {
-      const cached = queryClient.getQueriesData<GetOrdersResponse>({
-        queryKey: ['orders'],
-      })
+      updateOrderStatusCache(orderId, 'canceled')
+    },
+  })
 
-      cached.forEach(([cacheKey, cacheData]) => {
-        if (!cacheData) return
+  const { mutateAsync: approve, isPending: isApprovePending } = useMutation({
+    mutationFn: approveOrder,
+    onSuccess(_, orderId) {
+      updateOrderStatusCache(orderId, 'processing')
+    },
+  })
 
-        queryClient.setQueryData<GetOrdersResponse>(cacheKey, {
-          ...cacheData,
-          orders: cacheData.orders.map((o) => {
-            if (o.orderId === orderId) {
-              return { ...o, status: 'canceled' }
-            }
+  const { mutateAsync: dispatch, isPending: isDispatchPending } = useMutation({
+    mutationFn: dispatchOrder,
+    onSuccess(_, orderId) {
+      updateOrderStatusCache(orderId, 'delivering')
+    },
+  })
 
-            return o
-          }),
-        })
-      })
+  const { mutateAsync: deliver, isPending: isDeliverPending } = useMutation({
+    mutationFn: deliverOrder,
+    onSuccess(_, orderId) {
+      updateOrderStatusCache(orderId, 'delivered')
     },
   })
 
@@ -71,15 +102,49 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
         })}
       </TableCell>
       <TableCell>
-        <Button variant="outline" size="xs">
-          <ArrowRight className="mr-2 size-3" />
-          Approve
-        </Button>
+        {order.status === 'pending' && (
+          <Button
+            disabled={isApprovePending}
+            onClick={() => approve(order.orderId)}
+            variant="outline"
+            size="xs"
+          >
+            <ArrowRight className="mr-2 size-3" />
+            Approve
+          </Button>
+        )}
+
+        {order.status === 'processing' && (
+          <Button
+            disabled={isDispatchPending}
+            onClick={() => dispatch(order.orderId)}
+            variant="outline"
+            size="xs"
+          >
+            <ArrowRight className="mr-2 size-3" />
+            Delivery
+          </Button>
+        )}
+
+        {order.status === 'delivering' && (
+          <Button
+            disabled={isDeliverPending}
+            onClick={() => deliver(order.orderId)}
+            variant="outline"
+            size="xs"
+          >
+            <ArrowRight className="mr-2 size-3" />
+            Complete
+          </Button>
+        )}
       </TableCell>
       <TableCell>
         <Button
           onClick={() => cancel(order.orderId)}
-          disabled={!['pending', 'processing'].includes(order.status)}
+          disabled={
+            isCancelingPending ||
+            !['pending', 'processing'].includes(order.status)
+          }
           variant="ghost"
           size="xs"
         >
