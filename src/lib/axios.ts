@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { isAxiosError } from 'axios'
 
 import { env } from '@/env'
 
@@ -13,3 +13,19 @@ if (env.VITE_ENABLE_API_DELAY) {
     return config
   })
 }
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (isAxiosError(error)) {
+      const status = error.response?.status
+      const code = error.response?.data?.code
+
+      if (status === 401 && code === 'UNAUTHORIZED') {
+        window.location.replace('/sign-in')
+
+        return Promise.reject(error)
+      }
+    }
+  },
+)
