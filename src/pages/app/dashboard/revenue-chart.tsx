@@ -1,13 +1,16 @@
 'use client'
 
-import { TrendingUp } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { subDays } from 'date-fns'
+import { useMemo, useState } from 'react'
+import { DateRange } from 'react-day-picker'
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
 
+import { getDailyRevenueInPeriod } from '@/api/get-daily-revenue-in-period'
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -17,75 +20,82 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
-const chartData = [
-  { month: 'January', desktop: 186 },
-  { month: 'February', desktop: 305 },
-  { month: 'March', desktop: 237 },
-  { month: 'April', desktop: 73 },
-  { month: 'May', desktop: 209 },
-  { month: 'June', desktop: 214 },
-]
+import { DatePickerWithRange } from '@/components/ui/data-range-picker'
+import { Label } from '@/components/ui/label'
 
 const chartConfig = {
-  desktop: {
-    label: 'Desktop',
+  receipt: {
+    label: 'Receipt',
     color: 'hsl(var(--chart-1))',
   },
 } satisfies ChartConfig
 
 export function RevenueChart() {
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 7),
+    to: new Date(),
+  })
+
+  const { data: revenue } = useQuery({
+    queryFn: () =>
+      getDailyRevenueInPeriod({
+        from: dateRange?.from,
+        to: dateRange?.to,
+      }),
+    queryKey: ['revenue-chart', dateRange],
+  })
+
+  const chartData = useMemo(() => {
+    return revenue?.map((chartItem) => {
+      return {
+        date: chartItem.date,
+        receipt: chartItem.receipt / 100,
+      }
+    })
+  }, [revenue])
+
   return (
     <Card className="col-span-6">
-      <CardHeader>
-        <CardTitle>Area Chart</CardTitle>
-        <CardDescription>
-          Showing total visitors for the last 6 months
-        </CardDescription>
+      <CardHeader className="flex flex-row justify-between">
+        <div>
+          <CardTitle>Area Chart</CardTitle>
+          <CardDescription className="mt-1.5">
+            Total sales in the selected period
+          </CardDescription>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Label>Period</Label>
+          <DatePickerWithRange date={dateRange} onDateChange={setDateRange} />
+        </div>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[240px] w-full">
-          <AreaChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
-            />
-            <Area
-              dataKey="desktop"
-              type="natural"
-              fill="var(--color-desktop)"
-              fillOpacity={0.4}
-              stroke="var(--color-desktop)"
-            />
-          </AreaChart>
-        </ChartContainer>
+        {revenue && (
+          <ChartContainer config={chartConfig} className="h-[240px] w-full">
+            <AreaChart
+              accessibilityLayer
+              data={chartData}
+              margin={{
+                left: 12,
+                right: 12,
+              }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="line" />}
+              />
+              <Area dataKey="receipt" type="natural" fillOpacity={0.4} />
+            </AreaChart>
+          </ChartContainer>
+        )}
       </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              January - June 2024
-            </div>
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   )
 }
