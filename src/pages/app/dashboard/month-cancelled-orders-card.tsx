@@ -4,6 +4,8 @@ import { X } from 'lucide-react'
 import { getMonthCanceledOrdersAmount } from '@/api/get-month-cancelled-orders-amount'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
+import { MetricCardSkeleton } from './metric-card-skeleton'
+
 export function MonthCancelledOrdersCard() {
   const { data } = useQuery({
     queryFn: getMonthCanceledOrdersAmount,
@@ -19,7 +21,7 @@ export function MonthCancelledOrdersCard() {
         <X className="size-4 text-muted-foreground" />
       </CardHeader>
       <CardContent className="space-y-1">
-        {data && (
+        {data ? (
           <>
             <span className="text-2xl font-bold tracking-tight">
               {data.amount.toLocaleString()}
@@ -42,6 +44,8 @@ export function MonthCancelledOrdersCard() {
               )}
             </p>
           </>
+        ) : (
+          <MetricCardSkeleton />
         )}
       </CardContent>
     </Card>

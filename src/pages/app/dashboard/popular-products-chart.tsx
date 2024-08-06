@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { Loader2 } from 'lucide-react'
 import { Pie, PieChart } from 'recharts'
 
 import { getPopularProducts } from '@/api/get-popular-products'
@@ -53,7 +54,7 @@ export function PopularProductsChart() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        {popularProducts && (
+        {popularProducts ? (
           <ChartContainer
             config={chartConfig}
             className="mx-auto aspect-square max-h-[250px]"
@@ -72,6 +73,10 @@ export function PopularProductsChart() {
               />
             </PieChart>
           </ChartContainer>
+        ) : (
+          <div className="flex h-[240px] w-full items-center justify-center">
+            <Loader2 className="size-8 animate-spin text-muted-foreground" />
+          </div>
         )}
       </CardContent>
     </Card>

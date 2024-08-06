@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { subDays } from 'date-fns'
+import { Loader2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { DateRange } from 'react-day-picker'
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
@@ -70,7 +71,7 @@ export function RevenueChart() {
         </div>
       </CardHeader>
       <CardContent>
-        {revenue && (
+        {revenue ? (
           <ChartContainer config={chartConfig} className="h-[240px] w-full">
             <AreaChart
               accessibilityLayer
@@ -94,6 +95,10 @@ export function RevenueChart() {
               <Area dataKey="receipt" type="natural" fillOpacity={0.4} />
             </AreaChart>
           </ChartContainer>
+        ) : (
+          <div className="flex h-[240px] w-full items-center justify-center">
+            <Loader2 className="size-8 animate-spin text-muted-foreground" />
+          </div>
         )}
       </CardContent>
     </Card>

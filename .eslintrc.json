@@ -1,8 +1,13 @@
 {
-  "extends": ["@rocketseat/eslint-config/react"],
+  "extends": ["@rocketseat/eslint-config/react", "plugin:vitest-globals/recommended"],
   "plugins": ["simple-import-sort"],
   "rules": {
     "simple-import-sort/imports": "error",
     "no-use-before-define": "off"
+  },
+  "root": true,
+  "env": {
+    "browser": true,
+    "vitest-globals/env": true
   }
 }

@@ -36,6 +36,17 @@ export function SignUpPage() {
 
   const { mutateAsync: registerRestaurant } = useMutation({
     mutationFn: signUp,
+    onSuccess: (_, values) => {
+      toast.success('Restaurant succesfully created.', {
+        action: {
+          label: 'Login',
+          onClick: () => navigate(`/sign-in?email=${values.email}`),
+        },
+      })
+    },
+    onError: () => {
+      toast.error('Error creating restaurant.')
+    },
   })
 
   async function handleSignUp(values: signUpForm) {
@@ -44,13 +55,6 @@ export function SignUpPage() {
       managerName: values.managerName,
       email: values.email,
       phone: values.phone,
-    })
-
-    toast.success('Restaurant succesfully created.', {
-      action: {
-        label: 'Login',
-        onClick: () => navigate(`/sign-in?email=${values.email}`),
-      },
     })
   }
 

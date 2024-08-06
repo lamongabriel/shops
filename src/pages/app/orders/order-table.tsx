@@ -8,10 +8,13 @@ import {
 } from '@/components/ui/table'
 
 import { OrderTableRow } from './order-table-row'
+import { OrderTableSkeleton } from './order-table-skeleton'
 
 export function OrderTable({
   orders,
+  isLoading,
 }: {
+  isLoading: boolean
   orders: GetOrdersResponse['orders']
 }) {
   return (
@@ -29,9 +32,13 @@ export function OrderTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {orders.map((order) => (
-          <OrderTableRow key={order.orderId} order={order} />
-        ))}
+        {!isLoading ? (
+          orders.map((order) => (
+            <OrderTableRow key={order.orderId} order={order} />
+          ))
+        ) : (
+          <OrderTableSkeleton />
+        )}
       </TableBody>
     </Table>
   )

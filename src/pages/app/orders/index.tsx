@@ -21,7 +21,7 @@ export function OrdersPage() {
   const customerName = searchParams.get('customerName')
   const status = searchParams.get('status')
 
-  const { data: results } = useQuery({
+  const { data: results, isLoading } = useQuery({
     queryKey: ['orders', pageIndex, orderId, customerName, status],
     queryFn: () => getOrders({ pageIndex, customerName, orderId, status }),
   })
@@ -46,7 +46,7 @@ export function OrdersPage() {
         <OrderTableFilters />
 
         <div className="rounded-md border">
-          <OrderTable orders={results?.orders ?? []} />
+          <OrderTable isLoading={isLoading} orders={results?.orders ?? []} />
         </div>
 
         {results && (

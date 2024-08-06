@@ -22,6 +22,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+import { OrderDetailsSkeleton } from './order-details-skeleton'
 import { OrderStatus } from './order-status'
 
 interface OrderTableDialogProps {
@@ -35,7 +36,7 @@ export function OrderTableDialog({
   open,
   orderId,
 }: OrderTableDialogProps) {
-  const { data: order } = useQuery({
+  const { data: order, isLoading } = useQuery({
     queryKey: ['order', orderId],
     queryFn: () => getOrderDetails({ orderId }),
     enabled: open,
@@ -54,7 +55,9 @@ export function OrderTableDialog({
           <DialogTitle>Order Details</DialogTitle>
           <DialogDescription>{orderId}</DialogDescription>
         </DialogHeader>
-        {order && (
+        {isLoading ? (
+          <OrderDetailsSkeleton />
+        ) : order ? (
           <div className="space-y-6">
             <Table>
               <TableBody>
@@ -151,7 +154,7 @@ export function OrderTableDialog({
               </TableFooter>
             </Table>
           </div>
-        )}
+        ) : undefined}
       </DialogContent>
     </Dialog>
   )

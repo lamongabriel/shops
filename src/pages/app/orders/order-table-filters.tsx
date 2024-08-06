@@ -86,6 +86,7 @@ export function OrderTableFilters() {
 
   return (
     <form
+      data-testid="order-filters"
       onSubmit={handleSubmit(handleFilterData)}
       className="flex items-center gap-2"
     >

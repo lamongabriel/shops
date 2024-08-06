@@ -42,6 +42,9 @@ export function SignInPage() {
 
   const { mutateAsync: authenticate } = useMutation({
     mutationFn: signIn,
+    onError: () => {
+      toast.error('E-mail not found in the database.')
+    },
   })
 
   return (
