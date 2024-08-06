@@ -8,7 +8,7 @@ test('Sign in with correct credentials', async ({ page }) => {
 
   const toast = page.getByText('A login link has been sent to your e-mail.')
 
-  expect(toast).toBeVisible()
+  await expect(toast).toBeVisible()
 })
 
 test('Sign in with wrong credentials', async ({ page }) => {
@@ -19,5 +19,5 @@ test('Sign in with wrong credentials', async ({ page }) => {
 
   const toast = page.getByText('E-mail not found in the database.')
 
-  expect(toast).toBeVisible()
+  await expect(toast).toBeVisible()
 })

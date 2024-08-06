@@ -14,13 +14,13 @@ test('Update profile succesfully', async ({ page }) => {
 
   const toast = await page.getByText('Profile updated')
 
-  expect(toast).toBeVisible()
+  await expect(toast).toBeVisible()
 
   await page.locator('form').getByRole('button', { name: 'Close' }).click()
 
   await page.waitForTimeout(1000)
 
-  expect(page.getByRole('button', { name: 'Rocket Pizza' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Rocket Pizza' })).toBeVisible()
 })
 
 test('Update profile with error', async ({ page }) => {
@@ -37,5 +37,5 @@ test('Update profile with error', async ({ page }) => {
 
   const toast = await page.getByText('Error, please try again!')
 
-  expect(toast).toBeVisible()
+  await expect(toast).toBeVisible()
 })
